@@ -1,0 +1,41 @@
+{
+    "arrowParens": "always",
+    "bracketSameLine": true,
+    "bracketSpacing": true,
+    "embeddedLanguageFormatting": "auto",
+    "endOfLine": "lf",
+    "jsxSingleQuote": true,
+    "overrides": [
+        {
+            "files": "*.md",
+            "options": {
+                "tabWidth": 2
+            }
+        },
+        {
+            "files": "*.yaml",
+            "options": {
+                "tabWidth": 2
+            }
+        }
+    ],
+    "printWidth": 80,
+    "proseWrap": "always",
+    "pyright.enable": true,
+    "python.analysis.autoImportCompletions": true,
+    "python.analysis.autoSearchPaths": true,
+    "python.analysis.diagnosticMode": "openFilesOnly",
+    "python.analysis.typeCheckingMode": "strict",
+    "python.analysis.useLibraryCodeForTypes": true,
+    "python.formatting.provider": "black",
+    "python.linting.enabled": true,
+    "python.linting.pylintEnabled": true,
+    "quoteProps": "consistent",
+    "semi": true,
+    "singleAttributePerLine": false,
+    "singleQuote": true,
+    "tabWidth": 4,
+    "trailingComma": "all",
+    "useTabs": false,
+    "vueIndentScriptAndStyle": true
+}
