@@ -55,11 +55,22 @@ into:
 
 Adding to above, this library accepts generally used formats such as:
 
-- `AYY年MM月DD日` (Where `A` is the unshortened meta character)
+- `AYY年MM月DD日` (Where `A` is an unshortened meta character (See
+  [below](#Gengo-abbreviation) for how Gengo is abbreviated ))
   - Both 0-padded and not are accepted
-- Un 0-padded pattern of below
+- Un 0-padded patterns of below
   - `YY.MM.DD`
   - `NYY.MM.DD`
+
+### Gengo abbreviation
+
+| Short | Full |
+| :---: | :--: |
+|  明   | 明治 |
+|  大   | 大正 |
+|  昭   | 昭和 |
+|  平   | 平成 |
+|  令   | 令和 |
 
 ## Appendix
 
