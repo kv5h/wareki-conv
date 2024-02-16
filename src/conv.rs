@@ -219,7 +219,7 @@ pub fn gengo_resolve(wareki: &str) -> Gengo {
 ///   * A leading 0 is generally omitted in practical use.
 /// * Accepts first year notation in `"元年"`
 ///   * NOTE: In Japanese calendar system, the first year of each Gengo(元号; An
-///     era name) is sometimes noted as `"元年"` instead of `<Era name>1`.
+///     era name) is sometimes noted in `"元年"` instead of `<Era name>1`.
 ///
 /// ## Example
 /// ```rust
