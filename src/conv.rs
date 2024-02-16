@@ -139,7 +139,8 @@ pub enum DateType {
 /// ```rust
 /// use wareki_conv::conv::to_half_width;
 ///
-/// assert_eq!(to_half_width("Ｒ０１．０２．０３"), "R01.02.03")
+/// assert_eq!(to_half_width("Ｒ０１．０２．０３"), "R01.02.03");
+/// assert_eq!(to_half_width("昭和１５年１２月３１日"), "昭和15年12月31日");
 /// ```
 pub fn to_half_width(input: &str) -> String {
     wide2ascii(input)
