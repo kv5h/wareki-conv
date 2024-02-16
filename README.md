@@ -2,8 +2,9 @@
 
 Converts Japanese Wareki date ( `JIS X 0301` ) into `ISO 8601` based format.
 
-NOTE: Wareki(和暦) refers to a calendar peculiar to Japan, where time is divided
-into periods based on an imperial era name called "Gengo" and following years.
+> [!NOTE]
+> Wareki(和暦) refers to a calendar peculiar to Japan, where time is divided
+> into periods based on an imperial era name called "Gengo" and following years.
 
 ## How is Wareki defined by `JIS X 0301`?
 
