@@ -48,6 +48,7 @@ impl Date {
 }
 
 /// List of Gengo
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub enum Gengo {
     /// Meiji
     Meiji,
@@ -65,7 +66,7 @@ impl Gengo {
     /// Returns the first year of the Gengo
     ///
     /// ```rust
-    /// use wareki-conv::Gengo;
+    /// use wareki_conv::conv::Gengo;
     ///
     /// assert_eq!(Gengo::Meiji.first_year(), 1868)
     /// ```
@@ -82,7 +83,7 @@ impl Gengo {
     /// Get the name of the Gengo
     ///
     /// ```rust
-    /// use wareki-conv::Gengo;
+    /// use wareki_conv::conv::Gengo;
     ///
     /// assert_eq!(Gengo::Meiji.name(), "Meiji")
     /// ```
@@ -129,6 +130,9 @@ pub enum DateType {
 ///
 /// ## Example:
 /// ```rust
+/// use wareki_conv::conv::find_type;
+/// use wareki_conv::conv::DateType;
+/// 
 /// assert_eq!(find_type("R01.02.03"), DateType::JisX0301Extended)
 /// ```
 ///
@@ -161,6 +165,9 @@ pub fn find_type(wareki: &str) -> DateType {
 ///
 /// ## Example
 /// ```rust
+/// use wareki_conv::conv::gengo_resolve;
+/// use wareki_conv::conv::Gengo;
+///
 /// assert_eq!(gengo_resolve("R01.02.03"), Gengo::Reiwa)
 /// ```
 pub fn gengo_resolve(wareki: &str) -> Gengo {
