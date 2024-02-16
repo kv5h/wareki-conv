@@ -30,17 +30,14 @@ impl Date {
     pub fn new(year: i32, month: u32, day: u32) -> Self {
         Self { year, month, day }
     }
-
     /// Returns year
     pub fn year(&self) -> i32 {
         self.year
     }
-
     /// Returns month
     pub fn month(&self) -> u32 {
         self.month
     }
-
     /// Returns day
     pub fn day(&self) -> u32 {
         self.day
@@ -133,7 +130,7 @@ pub enum DateType {
 /// | Zenkaku | Hankaku |
 /// | :-----: | :-----: |
 /// |  `１`   |   `1`   |
-/// |   `A`   |   `A`   |
+/// |   `Ａ`   |   `A`  |
 ///
 /// Input data should be normalized beforehand because both are often used in
 /// common.
@@ -142,7 +139,7 @@ pub enum DateType {
 /// ```rust
 /// use wareki_conv::conv::to_half_width;
 ///
-/// assert_eq!(to_half_width("R０１．０２．０３"), "R01.02.03")
+/// assert_eq!(to_half_width("Ｒ０１．０２．０３"), "R01.02.03")
 /// ```
 pub fn to_half_width(input: &str) -> String {
     wide2ascii(input)
@@ -226,6 +223,9 @@ pub fn gengo_resolve(wareki: &str) -> Gengo {
 ///
 /// ## Example
 /// ```rust
+/// use chrono::prelude::*;
+/// use chrono::DateTime;
+/// use chrono::Utc;
 /// use wareki_conv::conv::convert;
 ///
 /// assert_eq!(

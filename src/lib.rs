@@ -1,6 +1,5 @@
 #![doc(html_root_url = "https://docs.rs/wareki-conv/0.1.0")]
 //! Converts Japanese Wareki date into ISO based format.
-//!
 
 pub mod conv;
 
@@ -32,6 +31,11 @@ mod tests {
         let input_4 = "06.2.3";
         assert_eq!(
             convert(input_4),
+            Utc.with_ymd_and_hms(2024, 2, 3, 0, 0, 0).unwrap()
+        );
+        let input_5 = "０６．０２．０３";
+        assert_eq!(
+            convert(input_5),
             Utc.with_ymd_and_hms(2024, 2, 3, 0, 0, 0).unwrap()
         );
     }
@@ -72,6 +76,11 @@ mod tests {
             convert(input_7),
             Utc.with_ymd_and_hms(1989, 2, 3, 0, 0, 0).unwrap()
         );
+        let input_8 = "Ｈ０１．０２．０３";
+        assert_eq!(
+            convert(input_8),
+            Utc.with_ymd_and_hms(1989, 2, 3, 0, 0, 0).unwrap()
+        );
     }
     #[test]
     fn test_jis_x0301_extended_with_kanji() {
@@ -105,6 +114,11 @@ mod tests {
             convert(input_6),
             Utc.with_ymd_and_hms(1989, 2, 3, 0, 0, 0).unwrap()
         );
+        let input_7 = "平０１．０２．０３";
+        assert_eq!(
+            convert(input_7),
+            Utc.with_ymd_and_hms(1989, 2, 3, 0, 0, 0).unwrap()
+        );
     }
     #[test]
     fn test_separated_with_kanji() {
@@ -131,6 +145,11 @@ mod tests {
         let input_6 = "平成1年2月3日";
         assert_eq!(
             convert(input_6),
+            Utc.with_ymd_and_hms(1989, 2, 3, 0, 0, 0).unwrap()
+        );
+        let input_7 = "平成１年２月３日";
+        assert_eq!(
+            convert(input_7),
             Utc.with_ymd_and_hms(1989, 2, 3, 0, 0, 0).unwrap()
         );
     }
