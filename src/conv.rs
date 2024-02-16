@@ -107,7 +107,7 @@ impl Gengo {
 /// |        `SeparatedWithKanji`         | `令和1年2月3日` |
 ///
 /// ## Remark
-/// JIS X 0301 requires each value (year, month and day) must be padded with 0
+/// JIS X 0301 requires each value (year, month and day) to be padded with 0
 /// if it is 1-digit value.
 ///
 /// Ref: <https://kikakurui.com/x0/X0301-2019-02.html>
