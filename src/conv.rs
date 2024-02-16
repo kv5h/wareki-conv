@@ -113,7 +113,7 @@ impl Gengo {
 /// Ref: <https://kikakurui.com/x0/X0301-2019-02.html>
 ///
 /// This library also accepts un-padded value because 0-padding is not always
-/// complied even in an official document.
+/// complied even in official documents.
 #[derive(PartialEq, Eq, Copy, Clone, Debug, Hash, PartialOrd, Ord)]
 pub enum DateType {
     JisX0301Basic,
