@@ -217,7 +217,7 @@ pub fn gengo_resolve(wareki: &str) -> Gengo {
 ///   * Full-width numbers are also used along with Half-width.
 /// * Accepts Non 0-padded patterns
 ///   * A leading 0 is generally omitted in practical use.
-/// * Accepts the first year notation as `"元年"`
+/// * Accepts first year notation in `"元年"`
 ///   * NOTE: In Japanese calendar system, the first year of each Gengo(元号; An
 ///     era name) is sometimes noted as `"元年"` instead of `<Era name>1`.
 ///
