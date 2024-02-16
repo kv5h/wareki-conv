@@ -110,7 +110,7 @@ impl Gengo {
 /// JIS X 0301 requires each value (year, month and day) must be padded with 0
 /// if it is 1-digit value.
 ///
-/// Ref: https://kikakurui.com/x0/X0301-2019-02.html
+/// Ref: <https://kikakurui.com/x0/X0301-2019-02.html>
 ///
 /// This library also accepts un-padded value because 0-padding is not always
 /// complied even in an official document.
