@@ -234,12 +234,25 @@ pub fn gengo_resolve(wareki: &str) -> Gengo {
 /// );
 ///
 /// assert_eq!(
+///     convert("明治元年2月3日"),
+///     Utc.with_ymd_and_hms(1868, 2, 3, 0, 0, 0).unwrap()
+/// );
+///
+/// assert_eq!(
 ///     convert("令01.02.03"),
 ///     Utc.with_ymd_and_hms(2019, 2, 3, 0, 0, 0).unwrap()
 /// );
 /// ```
+///
+/// ## Remark
+/// Actually, the first day of each era is not January 1 and it differs for each
+/// era. For example, the first day of the Heisei is January 8. This
+/// library does not take such conditions into account and assumes that the
+/// input values are correct.
 pub fn convert(wareki: &str) -> DateTime<Utc> {
-    let wareki_half = to_half_width(wareki);
+    let mut wareki_half = to_half_width(wareki);
+    // Replace `"元年"` to `"1年"`
+    wareki_half = wareki_half.replace("元", "1");
     let date_type = find_type(&wareki_half);
     let gengo = gengo_resolve(&wareki_half);
     let ymd_elements: Vec<u32>;

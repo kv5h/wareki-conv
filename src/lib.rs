@@ -152,6 +152,11 @@ mod tests {
             convert(input_7),
             Utc.with_ymd_and_hms(1989, 2, 3, 0, 0, 0).unwrap()
         );
+        let input_8 = "平成元年２月３日";
+        assert_eq!(
+            convert(input_8),
+            Utc.with_ymd_and_hms(1989, 2, 3, 0, 0, 0).unwrap()
+        );
     }
     #[test]
     #[ignore]
