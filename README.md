@@ -2,10 +2,10 @@
 
 Converts Japanese Wareki date ( `JIS X 0301` ) into `ISO 8601` based format.
 
-NOTE: Wareki refers to a calendar peculiar to Japan, where time is divided into
-periods based on an imperial era name called "Gengo" and following years.
+NOTE: Wareki(和暦) refers to a calendar peculiar to Japan, where time is divided
+into periods based on an imperial era name called "Gengo" and following years.
 
-## How Wareki is defined by `JIS X 0301`?
+## How is Wareki defined by `JIS X 0301`?
 
 According to
 [Wikipedia](<https://ja.wikipedia.org/wiki/ISO_8601#%E6%97%A5%E6%9C%AC_(JIS_X_0301)>),[^1]
@@ -42,36 +42,96 @@ According to
 > 暦日付の扱いとは異なり）グレゴリオ暦として解釈されることはない。なお、立年改元
 > に基づき、明治の初日は M01.01.01 である。
 
+For more details, See
+[https://kikakurui.com/x0/X0301-2019-01.html](https://kikakurui.com/x0/X0301-2019-01.html).
+
 ## Scope of this library
 
 Based on `JIS X 0301` definition, we will convert formats such as:
 
 - `YY.MM.DD` (JIS X 0301 Basic format)
-- `NYY.MM.DD` (JIS X 0301 Extended format where `N` is the meta character)
+- `NYY.MM.DD` (JIS X 0301 Extended format where `N` is a meta character)
 
 into:
 
 `YYYY-MM-DD` (ISO 8601 Extended format).
 
-Adding to above, this library accepts generally used formats such as:
+Adding to the JIS X 0301 standard, some additional features are implemented for
+utility.
 
-- `AYY年MM月DD日` (Where `A` is an unshortened meta character (See
-  [below](#Gengo-abbreviation) for how Gengo is abbreviated ))
-  - Both 0-padded and not are accepted
-- Un 0-padded patterns of below (JIS X 0301 requires 0-padded)
-  - `YY.MM.DD`
-  - `NYY.MM.DD`
+- Accepts Full-width numbers
+  - Full-width numbers are also used along with Half-width.
+- Accepts Non 0-padded patterns
+  - A leading 0 is generally omitted in practical use.
+- Accepts first year notation in `"元年"`
+  - NOTE: In Japanese calendar system, the first year of each Gengo(元号; An era
+    name) is sometimes noted in `"元年"` instead of `<Era name>1年`.
 
-### Gengo abbreviation
+Also, most commonly used format such as `平成5年2月3日 (<Gengo>YY年MM月DD日)`
+can be converted.
 
-| Short | Full |
-| :---: | :--: |
-|  明   | 明治 |
-|  大   | 大正 |
-|  昭   | 昭和 |
-|  平   | 平成 |
-|  令   | 令和 |
+## Example
 
-## Appendix
+```rust
+assert_eq!(
+    convert("01.02.03"),
+    Utc.with_ymd_and_hms(2019, 2, 3, 0, 0, 0).unwrap()
+);
 
-A date without meta charactor is assumed it is of the latest Gengo.
+assert_eq!(
+    convert("1.2.3"),
+    Utc.with_ymd_and_hms(2019, 2, 3, 0, 0, 0).unwrap()
+);
+
+assert_eq!(
+    convert("０６．０２．０３"),
+    Utc.with_ymd_and_hms(2024, 2, 3, 0, 0, 0).unwrap()
+);
+
+assert_eq!(
+    convert("H01.02.03"),
+    Utc.with_ymd_and_hms(1989, 2, 3, 0, 0, 0).unwrap()
+);
+
+assert_eq!(
+    convert("Ｈ０１．０２．０３"),
+    Utc.with_ymd_and_hms(1989, 2, 3, 0, 0, 0).unwrap()
+);
+
+assert_eq!(
+    convert("令1.2.3"),
+    Utc.with_ymd_and_hms(2019, 2, 3, 0, 0, 0).unwrap()
+);
+
+assert_eq!(
+    convert("平01.2.3"),
+    Utc.with_ymd_and_hms(1989, 2, 3, 0, 0, 0).unwrap()
+);
+
+assert_eq!(
+    convert("平０１．０２．０３"),
+    Utc.with_ymd_and_hms(1989, 2, 3, 0, 0, 0).unwrap()
+);
+
+assert_eq!(
+    convert("平成1年2月3日"),
+    Utc.with_ymd_and_hms(1989, 2, 3, 0, 0, 0).unwrap()
+);
+
+assert_eq!(
+    convert("平成１年２月３日"),
+    Utc.with_ymd_and_hms(1989, 2, 3, 0, 0, 0).unwrap()
+);
+
+assert_eq!(
+    convert("平成元年２月３日"),
+    Utc.with_ymd_and_hms(1989, 2, 3, 0, 0, 0).unwrap()
+);
+```
+
+## Remark
+
+Actually, the first day of each era is not January 1 and it differs for each
+era. For example, the first day of the Heisei is January 8. This library does
+not take such conditions into account and assumes that the input values are
+correct.

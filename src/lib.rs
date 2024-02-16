@@ -1,5 +1,5 @@
 #![doc(html_root_url = "https://docs.rs/wareki-conv/0.1.0")]
-//! Converts Japanese Wareki date into ISO based format.
+//! Converts Wareki (JIS X 0301) based date into ISO 8601 based one
 
 pub mod conv;
 

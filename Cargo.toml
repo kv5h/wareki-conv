@@ -2,9 +2,12 @@
 name = "wareki-conv"
 version = "0.1.0"
 edition = "2021"
+description = "Converts Wareki (JIS X 0301) based date into ISO 8601 based one"
 authors = ["kv5h"]
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+repository = "https://github.com/kv5h/wareki-conv"
+license = "MIT"
+readme = "README.md"
+keywords = ["JisX0301", "wareki", "和暦", "Iso8601", "date"]
 
 [dependencies]
 chrono = "0.4.34"

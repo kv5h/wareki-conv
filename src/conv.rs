@@ -1,4 +1,4 @@
-//! Converts Japanese Wareki date into ISO based format.
+//! Converts Wareki (JIS X 0301) based date into ISO 8601 based one
 
 use chrono::prelude::*;
 use chrono::DateTime;
