@@ -1,0 +1,5 @@
+doc_comment_code_block_width=80
+error_on_unformatted =true
+format_code_in_doc_comments=true
+normalize_doc_attributes=true
+wrap_comments = true
