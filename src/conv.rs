@@ -1,9 +1,9 @@
 //! Converts Japanese Wareki date into ISO based format.
-//!
 
 use chrono::prelude::*;
 use chrono::DateTime;
 use chrono::Utc;
+use kana::*;
 use log::error;
 use regex::Regex;
 use std::process;
@@ -107,23 +107,45 @@ impl Gengo {
 /// |           `JisX0301Basic`           |   `01.02.03`    |
 /// |         `JisX0301Extended`          |   `R01.02.03`   |
 /// |     `JisX0301ExtendedWithKanji`     |  `令01.02.03`   |
-/// |        `SeparetedWithKanji`         | `令和1年2月3日` |
+/// |        `SeparatedWithKanji`         | `令和1年2月3日` |
 ///
 /// ## Remark
 /// JIS X 0301 requires each value (year, month and day) must be padded with 0
-/// if it is 1-digit velue.
+/// if it is 1-digit value.
 ///
 /// Ref: https://kikakurui.com/x0/X0301-2019-02.html
 ///
-/// This library also accepts unpadded value because 0-padding is not always
+/// This library also accepts un-padded value because 0-padding is not always
 /// complied even in an official document.
-///
 #[derive(PartialEq, Eq, Copy, Clone, Debug, Hash, PartialOrd, Ord)]
 pub enum DateType {
     JisX0301Basic,
     JisX0301Extended,
     JisX0301ExtendedWithKanji,
-    SeparetedWithKanji,
+    SeparatedWithKanji,
+}
+
+/// Normalize input data
+///
+/// Japanese character has Zenkaku(Full-width) and Hankaku(Half-width) mode. For
+/// example,
+///
+/// | Zenkaku | Hankaku |
+/// | :-----: | :-----: |
+/// |  `１`   |   `1`   |
+/// |   `A`   |   `A`   |
+///
+/// Input data should be normalized beforehand because both are often used in
+/// common.
+///
+/// ## Example
+/// ```rust
+/// use wareki_conv::conv::to_half_width;
+///
+/// assert_eq!(to_half_width("R０１．０２．０３"), "R01.02.03")
+/// ```
+pub fn to_half_width(input: &str) -> String {
+    wide2ascii(input)
 }
 
 /// Finds structure type by pattern matching
@@ -135,12 +157,12 @@ pub enum DateType {
 ///
 /// assert_eq!(find_type("R01.02.03"), DateType::JisX0301Extended)
 /// ```
-///
 pub fn find_type(wareki: &str) -> DateType {
-    let elm: Vec<&str> = wareki.split('.').collect();
+    let wareki_half = to_half_width(wareki);
+    let elm: Vec<&str> = wareki_half.split('.').collect();
 
     if elm.len() == 1 {
-        return DateType::SeparetedWithKanji;
+        return DateType::SeparatedWithKanji;
     }
 
     assert_eq!(elm.len(), 3);
@@ -161,7 +183,7 @@ pub fn find_type(wareki: &str) -> DateType {
     date_type
 }
 
-/// Maps meta charactor to corresponding Gengo
+/// Maps meta character to corresponding Gengo
 ///
 /// ## Example
 /// ```rust
@@ -176,7 +198,8 @@ pub fn gengo_resolve(wareki: &str) -> Gengo {
     let showa = vec!['S', '昭'];
     let heisei = vec!['H', '平'];
 
-    let first_char = wareki.chars().nth(0).unwrap();
+    let wareki_half = to_half_width(wareki);
+    let first_char = wareki_half.chars().nth(0).unwrap();
     // If no meta attribute is appended, the Gengo is assumed to be the current one.
     let gengo = match first_char {
         x if meiji.contains(&x) => Gengo::Meiji,
@@ -189,18 +212,39 @@ pub fn gengo_resolve(wareki: &str) -> Gengo {
     gengo
 }
 
-/// Converts Wareki (JIS X 0301) based date into ISO based one.
+/// Converts Wareki (JIS X 0301) based date into ISO based one
+///
+/// Adding to the JIS X 0301 standard, some additional features are
+/// implemented for utility. such as:
+/// * Accepts Full-width numbers
+///   * Full-width numbers are also used along with Half-width.
+/// * Accepts Non 0-padded patterns
+///   * A leading 0 is generally omitted in practical use.
+/// * Accepts the first year notation as `"元年"`
+///   * NOTE: In Japanese calendar system, the first year of each Gengo(元号; An
+///     era name) is sometimes noted as `"元年"` instead of `<Era name>1`.
 ///
 /// ## Example
 /// ```rust
+/// use wareki_conv::conv::convert;
 ///
+/// assert_eq!(
+///     convert("明治1年2月3日"),
+///     Utc.with_ymd_and_hms(1868, 2, 3, 0, 0, 0).unwrap()
+/// );
+///
+/// assert_eq!(
+///     convert("令01.02.03"),
+///     Utc.with_ymd_and_hms(2019, 2, 3, 0, 0, 0).unwrap()
+/// );
 /// ```
 pub fn convert(wareki: &str) -> DateTime<Utc> {
-    let date_type = find_type(wareki);
-    let gengo = gengo_resolve(wareki);
+    let wareki_half = to_half_width(wareki);
+    let date_type = find_type(&wareki_half);
+    let gengo = gengo_resolve(&wareki_half);
     let ymd_elements: Vec<u32>;
-    if date_type == DateType::SeparetedWithKanji {
-        let tmp: String = wareki
+    if date_type == DateType::SeparatedWithKanji {
+        let tmp: String = wareki_half
             .chars()
             .skip(2)
             .filter(|x| x != &'日')
@@ -213,14 +257,14 @@ pub fn convert(wareki: &str) -> DateTime<Utc> {
             .collect();
         assert_eq!(ymd_elements.len(), 3);
     } else if date_type == DateType::JisX0301Basic {
-        ymd_elements = wareki
+        ymd_elements = wareki_half
             .split('.')
             .into_iter()
             .map(|x| x.parse().unwrap())
             .collect();
         assert_eq!(ymd_elements.len(), 3);
     } else {
-        ymd_elements = wareki
+        ymd_elements = wareki_half
             .chars()
             .skip(1)
             .collect::<String>()
