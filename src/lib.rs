@@ -34,6 +34,7 @@ mod tests {
             Utc.with_ymd_and_hms(2024, 2, 3, 0, 0, 0).unwrap()
         );
     }
+    #[test]
     fn test_jis_x0301_extended() {
         let input_1 = "R01.02.03";
         assert_eq!(
@@ -68,6 +69,67 @@ mod tests {
         let input_7 = "H01.02.03";
         assert_eq!(
             convert(input_7),
+            Utc.with_ymd_and_hms(1989, 2, 3, 0, 0, 0).unwrap()
+        );
+    }
+    #[test]
+    fn test_jis_x0301_extended_with_kanji() {
+        let input_1 = "令01.02.03";
+        assert_eq!(
+            convert(input_1),
+            Utc.with_ymd_and_hms(2019, 2, 3, 0, 0, 0).unwrap()
+        );
+        let input_2 = "令1.2.3";
+        assert_eq!(
+            convert(input_2),
+            Utc.with_ymd_and_hms(2019, 2, 3, 0, 0, 0).unwrap()
+        );
+        let input_3 = "明01.02.03";
+        assert_eq!(
+            convert(input_3),
+            Utc.with_ymd_and_hms(1868, 2, 3, 0, 0, 0).unwrap()
+        );
+        let input_4 = "大01.2.3";
+        assert_eq!(
+            convert(input_4),
+            Utc.with_ymd_and_hms(1912, 2, 3, 0, 0, 0).unwrap()
+        );
+        let input_5 = "昭01.02.03";
+        assert_eq!(
+            convert(input_5),
+            Utc.with_ymd_and_hms(1926, 2, 3, 0, 0, 0).unwrap()
+        );
+        let input_6 = "平01.2.3";
+        assert_eq!(
+            convert(input_6),
+            Utc.with_ymd_and_hms(1989, 2, 3, 0, 0, 0).unwrap()
+        );
+    }
+    #[test]
+    fn test_separeted_with_kanji() {
+        let input_1 = "令和1年2月3日";
+        assert_eq!(
+            convert(input_1),
+            Utc.with_ymd_and_hms(2019, 2, 3, 0, 0, 0).unwrap()
+        );
+        let input_3 = "明治1年2月3日";
+        assert_eq!(
+            convert(input_3),
+            Utc.with_ymd_and_hms(1868, 2, 3, 0, 0, 0).unwrap()
+        );
+        let input_4 = "大正1年2月3日";
+        assert_eq!(
+            convert(input_4),
+            Utc.with_ymd_and_hms(1912, 2, 3, 0, 0, 0).unwrap()
+        );
+        let input_5 = "昭和1年2月3日";
+        assert_eq!(
+            convert(input_5),
+            Utc.with_ymd_and_hms(1926, 2, 3, 0, 0, 0).unwrap()
+        );
+        let input_6 = "平成1年2月3日";
+        assert_eq!(
+            convert(input_6),
             Utc.with_ymd_and_hms(1989, 2, 3, 0, 0, 0).unwrap()
         );
     }

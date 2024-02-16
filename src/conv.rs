@@ -132,7 +132,7 @@ pub enum DateType {
 /// ```rust
 /// use wareki_conv::conv::find_type;
 /// use wareki_conv::conv::DateType;
-/// 
+///
 /// assert_eq!(find_type("R01.02.03"), DateType::JisX0301Extended)
 /// ```
 ///
@@ -220,7 +220,10 @@ pub fn convert(wareki: &str) -> DateTime<Utc> {
             .collect();
         assert_eq!(ymd_elements.len(), 3);
     } else {
-        ymd_elements = wareki[1..]
+        ymd_elements = wareki
+            .chars()
+            .skip(1)
+            .collect::<String>()
             .split('.')
             .into_iter()
             .map(|x| x.parse().unwrap())
