@@ -58,7 +58,7 @@ Adding to above, this library accepts generally used formats such as:
 - `AYY年MM月DD日` (Where `A` is an unshortened meta character (See
   [below](#Gengo-abbreviation) for how Gengo is abbreviated ))
   - Both 0-padded and not are accepted
-- Un 0-padded patterns of below
+- Un 0-padded patterns of below (JIS X 0301 requires 0-padded)
   - `YY.MM.DD`
   - `NYY.MM.DD`
 
