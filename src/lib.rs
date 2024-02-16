@@ -10,6 +10,7 @@ mod tests {
     use super::conv::*;
     use chrono::prelude::*;
     use chrono::Utc;
+    use std::collections::HashMap;
 
     #[test]
     fn test_jis_x0301_basic() {
@@ -106,7 +107,7 @@ mod tests {
         );
     }
     #[test]
-    fn test_separeted_with_kanji() {
+    fn test_separated_with_kanji() {
         let input_1 = "令和1年2月3日";
         assert_eq!(
             convert(input_1),
@@ -131,6 +132,39 @@ mod tests {
         assert_eq!(
             convert(input_6),
             Utc.with_ymd_and_hms(1989, 2, 3, 0, 0, 0).unwrap()
+        );
+    }
+    #[test]
+    #[ignore]
+    // cargo test -- --ignored --show-output
+    fn _test_perf() {
+        let test_count = 10_000;
+        let map = HashMap::from([
+            (0, 'M'),
+            (1, 'T'),
+            (2, 'S'),
+            (3, 'H'),
+            (4, 'R'),
+            (5, '明'),
+            (6, '大'),
+            (7, '昭'),
+            (8, '平'),
+            (9, '令'),
+        ]);
+
+        let start = Utc::now();
+        println!("Start: {}", start);
+
+        (0..test_count).into_iter().for_each(|i| {
+            convert(&format!("{}{}.1.2", map.get(&(i % 10)).unwrap(), i % 20));
+        });
+
+        let end = Utc::now();
+        let dur = end.signed_duration_since(start);
+        println!("End: {}", end);
+        println!(
+            "Duration per sec: {}",
+            test_count as f64 / (dur.num_milliseconds() as f64 / 1000.0)
         );
     }
 }
