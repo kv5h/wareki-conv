@@ -7,7 +7,7 @@ authors = ["kv5h"]
 repository = "https://github.com/kv5h/wareki-conv"
 license = "MIT"
 readme = "README.md"
-keywords = ["JisX0301", "wareki", "和暦", "Iso8601", "date"]
+keywords = ["jis-x-0301", "wareki", "calendar", "iso8601", "date"]
 categories = ["parsing","command-line-utilities"]
 
 [dependencies]
