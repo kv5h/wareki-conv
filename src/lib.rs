@@ -1,6 +1,9 @@
 #![doc(html_root_url = "https://docs.rs/wareki-conv/0.1.0")]
 //! Converts Wareki (JIS X 0301) based date into ISO 8601 based one
 
+#![feature(test)]
+extern crate test;
+
 pub mod conv;
 
 /// tests
@@ -10,6 +13,7 @@ mod tests {
     use chrono::prelude::*;
     use chrono::Utc;
     use std::collections::HashMap;
+    use test::Bencher;
 
     #[test]
     fn test_jis_x0301_basic() {
@@ -190,5 +194,26 @@ mod tests {
             "Duration per sec: {}",
             test_count as f64 / (dur.num_milliseconds() as f64 / 1000.0)
         );
+    }
+    #[bench]
+    fn bench_convert(b: &mut Bencher) {
+        let test_count = 100;
+        let map = HashMap::from([
+            (0, 'M'),
+            (1, 'T'),
+            (2, 'S'),
+            (3, 'H'),
+            (4, 'R'),
+            (5, '明'),
+            (6, '大'),
+            (7, '昭'),
+            (8, '平'),
+            (9, '令'),
+        ]);
+        b.iter(|| {
+            (0..test_count).into_iter().for_each(|i| {
+                convert(&format!("{}{}.1.2", map.get(&(i % 10)).unwrap(), i % 20));
+            })
+        });
     }
 }

@@ -8,6 +8,7 @@ repository = "https://github.com/kv5h/wareki-conv"
 license = "MIT"
 readme = "README.md"
 keywords = ["JisX0301", "wareki", "和暦", "Iso8601", "date"]
+categories = ["parsing","command-line-utilities"]
 
 [dependencies]
 chrono = "0.4.34"
