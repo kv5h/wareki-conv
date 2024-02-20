@@ -1,6 +1,6 @@
 [package]
 name = "wareki-conv"
-version = "0.1.0"
+version = "0.2.0"
 edition = "2021"
 description = "Converts Wareki (JIS X 0301) based date into ISO 8601 based one"
 authors = ["kv5h"]
