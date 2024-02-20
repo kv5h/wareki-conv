@@ -1,12 +1,8 @@
 //! Converts Wareki (JIS X 0301) based date into ISO 8601 based one
 
 use chrono::prelude::*;
-use chrono::DateTime;
-use chrono::Utc;
 use kana::*;
-use log::error;
 use regex::Regex;
-use std::process;
 
 const START_YEAR_OF_MEIJI: i32 = 1868;
 const START_YEAR_OF_TAISHO: i32 = 1912;
@@ -153,32 +149,34 @@ pub fn to_half_width(input: &str) -> String {
 /// use wareki_conv::conv::find_type;
 /// use wareki_conv::conv::DateType;
 ///
-/// assert_eq!(find_type("R01.02.03"), DateType::JisX0301Extended)
+/// assert_eq!(
+///     find_type("R01.02.03").unwrap(),
+///     Some(DateType::JisX0301Extended)
+/// )
 /// ```
-pub fn find_type(wareki: &str) -> DateType {
+pub fn find_type(wareki: &str) -> Result<Option<DateType>, regex::Error> {
     let wareki_half = to_half_width(wareki);
     let elm: Vec<&str> = wareki_half.split('.').collect();
+    let re_begin_with_digit = Regex::new(r"^\d")?;
+    let re_begin_with_char = Regex::new(r"^(M|T|S|H|R)")?;
+    let re_begin_with_kanji = Regex::new(r"^(明|大|昭|平|令)")?;
+    let re_separated_with_kanji = Regex::new(r"^(明治|大正|昭和|平成|令和)\d+年\d+月\d+日")?;
 
     if elm.len() == 1 {
-        return DateType::SeparatedWithKanji;
+        // A minimum syntax assertion
+        assert!(re_separated_with_kanji.is_match(elm.get(0).unwrap()));
+        return Ok(Some(DateType::SeparatedWithKanji));
     }
 
     assert_eq!(elm.len(), 3);
-
-    let re_begin_with_digit = Regex::new(r"^\d").unwrap();
-    let re_begin_with_char = Regex::new(r"^(M|T|S|H|R)").unwrap();
-    let re_begin_with_kanji = Regex::new(r"^(明|大|昭|平|令)").unwrap();
-    let date_type = match elm.get(0).unwrap() {
-        x if re_begin_with_digit.is_match(x) => DateType::JisX0301Basic,
-        x if re_begin_with_char.is_match(x) => DateType::JisX0301Extended,
-        x if re_begin_with_kanji.is_match(x) => DateType::JisX0301ExtendedWithKanji,
-        _ => {
-            error!("Failed to convert {}", elm.get(0).unwrap());
-            process::exit(1)
-        }
+    let date_type = match elm.get(0) {
+        Some(x) if re_begin_with_digit.is_match(x) => Some(DateType::JisX0301Basic),
+        Some(x) if re_begin_with_char.is_match(x) => Some(DateType::JisX0301Extended),
+        Some(x) if re_begin_with_kanji.is_match(x) => Some(DateType::JisX0301ExtendedWithKanji),
+        _ => None,
     };
 
-    date_type
+    Ok(date_type)
 }
 
 /// Maps meta character to corresponding Gengo
@@ -188,23 +186,26 @@ pub fn find_type(wareki: &str) -> DateType {
 /// use wareki_conv::conv::gengo_resolve;
 /// use wareki_conv::conv::Gengo;
 ///
-/// assert_eq!(gengo_resolve("R01.02.03"), Gengo::Reiwa)
+/// assert_eq!(gengo_resolve("R01.02.03"), Some(Gengo::Reiwa))
 /// ```
-pub fn gengo_resolve(wareki: &str) -> Gengo {
+pub fn gengo_resolve(wareki: &str) -> Option<Gengo> {
     let meiji = vec!['M', '明'];
     let taisho = vec!['T', '大'];
     let showa = vec!['S', '昭'];
     let heisei = vec!['H', '平'];
+    #[allow(unused_variables)]
+    // Currently, date with no meta attribute is mapped to this value.
+    let reiwa = vec!['R', '令'];
 
     let wareki_half = to_half_width(wareki);
-    let first_char = wareki_half.chars().nth(0).unwrap();
-    // If no meta attribute is appended, the Gengo is assumed to be the current one.
+    let first_char = wareki_half.chars().nth(0);
     let gengo = match first_char {
-        x if meiji.contains(&x) => Gengo::Meiji,
-        x if taisho.contains(&x) => Gengo::Taisho,
-        x if showa.contains(&x) => Gengo::Showa,
-        x if heisei.contains(&x) => Gengo::Heisei,
-        _ => Gengo::Reiwa,
+        Some(x) if meiji.contains(&x) => Some(Gengo::Meiji),
+        Some(x) if taisho.contains(&x) => Some(Gengo::Taisho),
+        Some(x) if showa.contains(&x) => Some(Gengo::Showa),
+        Some(x) if heisei.contains(&x) => Some(Gengo::Heisei),
+        // If no meta attribute is appended, the Gengo is assumed to be the current one.
+        _ => Some(Gengo::Reiwa),
     };
 
     gengo
@@ -225,23 +226,21 @@ pub fn gengo_resolve(wareki: &str) -> Gengo {
 /// ## Example
 /// ```rust
 /// use chrono::prelude::*;
-/// use chrono::DateTime;
-/// use chrono::Utc;
 /// use wareki_conv::conv::convert;
 ///
 /// assert_eq!(
-///     convert("明治1年2月3日"),
-///     Utc.with_ymd_and_hms(1868, 2, 3, 0, 0, 0).unwrap()
+///     convert("明治1年2月3日").unwrap(),
+///     Some(Utc.with_ymd_and_hms(1868, 2, 3, 0, 0, 0).unwrap())
 /// );
 ///
 /// assert_eq!(
-///     convert("明治元年2月3日"),
-///     Utc.with_ymd_and_hms(1868, 2, 3, 0, 0, 0).unwrap()
+///     convert("明治元年2月3日").unwrap(),
+///     Some(Utc.with_ymd_and_hms(1868, 2, 3, 0, 0, 0).unwrap())
 /// );
 ///
 /// assert_eq!(
-///     convert("令01.02.03"),
-///     Utc.with_ymd_and_hms(2019, 2, 3, 0, 0, 0).unwrap()
+///     convert("令01.02.03").unwrap(),
+///     Some(Utc.with_ymd_and_hms(2019, 2, 3, 0, 0, 0).unwrap())
 /// );
 /// ```
 ///
@@ -250,62 +249,72 @@ pub fn gengo_resolve(wareki: &str) -> Gengo {
 /// era. For example, the first day of the Heisei is January 8. This
 /// library does not take such conditions into account and assumes that the
 /// input values are correct.
-pub fn convert(wareki: &str) -> DateTime<Utc> {
+pub fn convert(wareki: &str) -> Result<Option<DateTime<Utc>>, regex::Error> {
     let mut wareki_half = to_half_width(wareki);
     // Replace `"元年"` to `"1年"`
     wareki_half = wareki_half.replace("元", "1");
-    let date_type = find_type(&wareki_half);
+    let date_type = match find_type(&wareki_half) {
+        Ok(x) => x,
+        Err(e) => return Err(e),
+    };
     let gengo = gengo_resolve(&wareki_half);
     let ymd_elements: Vec<u32>;
-    if date_type == DateType::SeparatedWithKanji {
-        let tmp: String = wareki_half
-            .chars()
-            .skip(2)
-            .filter(|x| x != &'日')
-            .map(|x| if x.is_ascii_digit() { x } else { '.' })
-            .collect();
-        ymd_elements = tmp
-            .split('.')
-            .into_iter()
-            .map(|x| x.parse().unwrap())
-            .collect();
-        assert_eq!(ymd_elements.len(), 3);
-    } else if date_type == DateType::JisX0301Basic {
-        ymd_elements = wareki_half
-            .split('.')
-            .into_iter()
-            .map(|x| x.parse().unwrap())
-            .collect();
-        assert_eq!(ymd_elements.len(), 3);
-    } else {
-        ymd_elements = wareki_half
-            .chars()
-            .skip(1)
-            .collect::<String>()
-            .split('.')
-            .into_iter()
-            .map(|x| x.parse().unwrap())
-            .collect();
-        assert_eq!(ymd_elements.len(), 3);
+
+    match date_type {
+        Some(DateType::SeparatedWithKanji) => {
+            let tmp: String = wareki_half
+                .chars()
+                .skip(2)
+                .filter(|x| x != &'日')
+                .map(|x| if x.is_ascii_digit() { x } else { '.' })
+                .collect();
+            ymd_elements = tmp
+                .split('.')
+                .into_iter()
+                .map(|x| x.parse().unwrap())
+                .collect();
+            assert_eq!(ymd_elements.len(), 3);
+        }
+        Some(DateType::JisX0301Basic) => {
+            ymd_elements = wareki_half
+                .split('.')
+                .into_iter()
+                .map(|x| x.parse().unwrap())
+                .collect();
+            assert_eq!(ymd_elements.len(), 3);
+        }
+        Some(DateType::JisX0301Extended) | Some(DateType::JisX0301ExtendedWithKanji) => {
+            ymd_elements = wareki_half
+                .chars()
+                .skip(1)
+                .collect::<String>()
+                .split('.')
+                .into_iter()
+                .map(|x| x.parse().unwrap())
+                .collect();
+            assert_eq!(ymd_elements.len(), 3);
+        }
+        None => return Ok(None),
     }
 
     // Converts year corresponding to Gengo
     let year = match gengo {
-        Gengo::Meiji => {
+        Some(Gengo::Meiji) => {
             ymd_elements.get(0).unwrap().clone() as i32 + Gengo::first_year(&Gengo::Meiji) - 1
         }
-        Gengo::Taisho => {
+        Some(Gengo::Taisho) => {
             ymd_elements.get(0).unwrap().clone() as i32 + Gengo::first_year(&Gengo::Taisho) - 1
         }
-        Gengo::Showa => {
+        Some(Gengo::Showa) => {
             ymd_elements.get(0).unwrap().clone() as i32 + Gengo::first_year(&Gengo::Showa) - 1
         }
-        Gengo::Heisei => {
+        Some(Gengo::Heisei) => {
             ymd_elements.get(0).unwrap().clone() as i32 + Gengo::first_year(&Gengo::Heisei) - 1
         }
-        Gengo::Reiwa => {
+        Some(Gengo::Reiwa) => {
             ymd_elements.get(0).unwrap().clone() as i32 + Gengo::first_year(&Gengo::Reiwa) - 1
         }
+        None => return Ok(None),
     };
 
     let date = Date::new(
@@ -318,5 +327,5 @@ pub fn convert(wareki: &str) -> DateTime<Utc> {
         .with_ymd_and_hms(date.year(), date.month(), date.day(), 00, 00, 00)
         .unwrap();
 
-    date_time
+    Ok(Some(date_time))
 }
