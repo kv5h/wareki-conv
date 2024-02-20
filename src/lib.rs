@@ -18,8 +18,8 @@ mod tests {
     fn assert() {
         fn test_assert(s: &str, ymd: (i32, u32, u32)) {
             assert_eq!(
-                convert(s).unwrap().unwrap(),
-                Utc.with_ymd_and_hms(ymd.0, ymd.1, ymd.2, 0, 0, 0).unwrap()
+                convert(s).unwrap(),
+                Some(Utc.with_ymd_and_hms(ymd.0, ymd.1, ymd.2, 0, 0, 0).unwrap())
             )
         }
 

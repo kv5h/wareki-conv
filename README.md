@@ -3,6 +3,7 @@
 Converts Japanese Wareki date ( `JIS X 0301` ) into `ISO 8601` based format.
 
 > [!NOTE]
+>
 > Wareki(和暦) refers to a calendar peculiar to Japan, where time is divided
 > into periods based on an imperial era name called "Gengo" and following years.
 
@@ -74,60 +75,47 @@ can be converted.
 ## Example
 
 ```rust
-assert_eq!(
-    convert("01.02.03"),
-    Utc.with_ymd_and_hms(2019, 2, 3, 0, 0, 0).unwrap()
-);
+fn test_assert(s: &str, ymd: (i32, u32, u32)) {
+    assert_eq!(
+        convert(s).unwrap(),
+        Some(Utc.with_ymd_and_hms(ymd.0, ymd.1, ymd.2, 0, 0, 0).unwrap())
+    )
+}
 
-assert_eq!(
-    convert("1.2.3"),
-    Utc.with_ymd_and_hms(2019, 2, 3, 0, 0, 0).unwrap()
-);
+// DateType::JisX0301Basic
+test_assert("01.02.03", (2019, 2, 3));
+test_assert("1.2.3", (2019, 2, 3));
+test_assert("10.02.03", (2028, 2, 3));
+test_assert("06.2.3", (2024, 2, 3));
+test_assert("０６．０２．０３", (2024, 2, 3));
 
-assert_eq!(
-    convert("０６．０２．０３"),
-    Utc.with_ymd_and_hms(2024, 2, 3, 0, 0, 0).unwrap()
-);
+// DateType::JisX0301Extended
+test_assert("R01.02.03", (2019, 2, 3));
+test_assert("R10.2.3", (2028, 2, 3));
+test_assert("M01.02.03", (1868, 2, 3));
+test_assert("M45.2.3", (1912, 2, 3));
+test_assert("T01.02.03", (1912, 2, 3));
+test_assert("S01.2.3", (1926, 2, 3));
+test_assert("H01.02.03", (1989, 2, 3));
+test_assert("Ｈ０１．０２．０３", (1989, 2, 3));
 
-assert_eq!(
-    convert("H01.02.03"),
-    Utc.with_ymd_and_hms(1989, 2, 3, 0, 0, 0).unwrap()
-);
+// DateType::JisX0301ExtendedWithKanji
+test_assert("令01.02.03", (2019, 2, 3));
+test_assert("令1.2.3", (2019, 2, 3));
+test_assert("明01.02.03", (1868, 2, 3));
+test_assert("大01.2.3", (1912, 2, 3));
+test_assert("昭01.02.03", (1926, 2, 3));
+test_assert("平01.2.3", (1989, 2, 3));
+test_assert("平０１．０２．０３", (1989, 2, 3));
 
-assert_eq!(
-    convert("Ｈ０１．０２．０３"),
-    Utc.with_ymd_and_hms(1989, 2, 3, 0, 0, 0).unwrap()
-);
-
-assert_eq!(
-    convert("令1.2.3"),
-    Utc.with_ymd_and_hms(2019, 2, 3, 0, 0, 0).unwrap()
-);
-
-assert_eq!(
-    convert("平01.2.3"),
-    Utc.with_ymd_and_hms(1989, 2, 3, 0, 0, 0).unwrap()
-);
-
-assert_eq!(
-    convert("平０１．０２．０３"),
-    Utc.with_ymd_and_hms(1989, 2, 3, 0, 0, 0).unwrap()
-);
-
-assert_eq!(
-    convert("平成1年2月3日"),
-    Utc.with_ymd_and_hms(1989, 2, 3, 0, 0, 0).unwrap()
-);
-
-assert_eq!(
-    convert("平成１年２月３日"),
-    Utc.with_ymd_and_hms(1989, 2, 3, 0, 0, 0).unwrap()
-);
-
-assert_eq!(
-    convert("平成元年２月３日"),
-    Utc.with_ymd_and_hms(1989, 2, 3, 0, 0, 0).unwrap()
-);
+// DateType::SeparatedWithKanji
+test_assert("令和1年2月3日", (2019, 2, 3));
+test_assert("明治1年2月3日", (1868, 2, 3));
+test_assert("大正1年2月3日", (1912, 2, 3));
+test_assert("昭和1年2月3日", (1926, 2, 3));
+test_assert("平成1年2月3日", (1989, 2, 3));
+test_assert("平成１年２月３日", (1989, 2, 3));
+test_assert("平成元年２月３日", (1989, 2, 3));
 ```
 
 ## Remark
